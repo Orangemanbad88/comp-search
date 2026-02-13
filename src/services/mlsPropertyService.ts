@@ -233,10 +233,10 @@ export class MLSPropertyService implements PropertyService {
       conditions.push(`(${FIELDS.bedrooms}=${bedMin}-${bedMax})`);
     }
 
-    // Baths range (±2)
+    // Baths range (±2, rounded to integers for bathsFull field)
     if (subject.bathrooms > 0) {
-      const bathMin = Math.max(1, subject.bathrooms - 2);
-      const bathMax = subject.bathrooms + 2;
+      const bathMin = Math.max(1, Math.floor(subject.bathrooms - 2));
+      const bathMax = Math.ceil(subject.bathrooms + 2);
       conditions.push(`(${FIELDS.bathsFull}=${bathMin}-${bathMax})`);
     }
 
@@ -282,9 +282,9 @@ export class MLSPropertyService implements PropertyService {
     const bedMax = subject.bedrooms + 1;
     conditions.push(`(${FIELDS.bedrooms}=${bedMin}-${bedMax})`);
 
-    // Baths range
-    const bathMin = Math.max(1, subject.bathrooms - 1);
-    const bathMax = subject.bathrooms + 1;
+    // Baths range (rounded to integers for bathsFull field)
+    const bathMin = Math.max(1, Math.floor(subject.bathrooms - 1));
+    const bathMax = Math.ceil(subject.bathrooms + 1);
     conditions.push(`(${FIELDS.bathsFull}=${bathMin}-${bathMax})`);
 
     // Sqft range (+/- 25% - wider for shore properties)
