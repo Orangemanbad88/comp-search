@@ -1,0 +1,235 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Modern Sleek Palette */
+  --burgundy: #1a1a2e;
+  --burgundy-dark: #16162a;
+  --burgundy-light: #2a2a3e;
+  --walnut: #475569;
+  --walnut-dark: #334155;
+  --walnut-light: #64748b;
+  --gold: #d4a00a;
+  --gold-light: #e8b810;
+  --gold-muted: #c49a08;
+  --cream: #f8fafc;
+  --cream-dark: #f1f5f9;
+  --ivory: #ffffff;
+  --charcoal: #0f172a;
+  --charcoal-light: #1e293b;
+  --parchment: #f1f5f9;
+
+  --background: var(--cream);
+  --foreground: var(--charcoal);
+}
+
+.dark {
+  --background: #0a0a0f;
+  --foreground: var(--cream);
+  --cream: #0a0a0f;
+  --cream-dark: #111118;
+  --ivory: #1a1a24;
+  --parchment: #111118;
+}
+
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--foreground);
+  background: var(--background);
+}
+
+/* Elegant Headings */
+h1, h2, h3, .font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cream-dark);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--walnut-light) 0%, var(--walnut) 100%);
+  border-radius: 5px;
+  border: 2px solid var(--cream-dark);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--walnut) 0%, var(--walnut-dark) 100%);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #111118;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+  border-color: #111118;
+}
+
+/* Premium Card Styles */
+.card-premium {
+  background: linear-gradient(145deg, var(--ivory) 0%, var(--cream) 100%);
+  border: 1px solid rgba(71, 85, 105, 0.15);
+  box-shadow:
+    0 4px 6px -1px rgba(15, 23, 42, 0.05),
+    0 10px 15px -3px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.dark .card-premium {
+  background: linear-gradient(145deg, #1a1a24 0%, #111118 100%);
+  border-color: rgba(212, 160, 10, 0.2);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.2),
+    0 10px 15px -3px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Gold Accent Border */
+.border-gold {
+  border-color: var(--gold);
+}
+
+.border-gold-subtle {
+  border-color: rgba(212, 160, 10, 0.3);
+}
+
+/* Section Header Dark */
+.leather-texture {
+  background-image:
+    linear-gradient(145deg, var(--burgundy) 0%, var(--burgundy-dark) 100%);
+  position: relative;
+}
+
+.leather-texture::after {
+  display: none;
+}
+
+/* Sleek Dark Header */
+.wood-grain {
+  background: linear-gradient(135deg, var(--walnut) 0%, var(--walnut-dark) 50%, var(--walnut) 100%);
+  position: relative;
+}
+
+.wood-grain::before {
+  display: none;
+}
+
+/* Gold Shimmer Effect */
+.gold-shimmer {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+  background-size: 200% 200%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Premium Input Styles */
+.input-premium {
+  background: var(--ivory);
+  border: 1px solid rgba(71, 85, 105, 0.2);
+  box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.05);
+  transition: all 0.2s ease;
+}
+
+.input-premium:focus {
+  border-color: var(--gold);
+  box-shadow:
+    inset 0 2px 4px rgba(15, 23, 42, 0.05),
+    0 0 0 3px rgba(212, 160, 10, 0.15);
+  outline: none;
+}
+
+.dark .input-premium {
+  background: #1a1a24;
+  border-color: rgba(212, 160, 10, 0.3);
+}
+
+.dark .input-premium:focus {
+  border-color: var(--gold);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.2),
+    0 0 0 3px rgba(212, 160, 10, 0.2);
+}
+
+/* Premium Button */
+.btn-premium {
+  background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-dark) 100%);
+  color: var(--cream);
+  font-weight: 600;
+  border: 1px solid var(--burgundy-dark);
+  box-shadow:
+    0 2px 4px rgba(15, 23, 42, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.btn-premium:hover {
+  background: linear-gradient(135deg, var(--burgundy-light) 0%, var(--burgundy) 100%);
+  box-shadow:
+    0 4px 8px rgba(15, 23, 42, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.btn-premium:active {
+  transform: translateY(0);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Brass/Gold Divider */
+.divider-brass {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--gold) 20%, var(--gold) 80%, transparent 100%);
+  opacity: 0.5;
+}
+
+/* Table Styles */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Focus Styles */
+input:focus, select:focus, button:focus {
+  outline: none;
+}
+
+/* Glass effect for modals */
+.glass-premium {
+  background: rgba(248, 250, 252, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.dark .glass-premium {
+  background: rgba(10, 10, 15, 0.95);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
