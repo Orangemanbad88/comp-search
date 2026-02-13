@@ -58,7 +58,7 @@ function HomeContent() {
         return;
       }
     }
-    handleSearch(defaultSubject, defaultCriteria, 'active');
+    // No auto-search on mount — wait for user action
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

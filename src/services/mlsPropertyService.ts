@@ -294,9 +294,9 @@ export class MLSPropertyService implements PropertyService {
       conditions.push(`(${FIELDS.sqft}=${sqftMin}-${sqftMax})`);
     }
 
-    // Date range: last 24 months (shore market has fewer sales)
+    // Date range: last 90 days
     const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - 24);
+    startDate.setDate(startDate.getDate() - 90);
     const dateStr = startDate.toISOString().split('T')[0];
     conditions.push(`(${FIELDS.statusDate}=${dateStr}+)`);
 
