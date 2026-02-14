@@ -325,6 +325,14 @@ export function PhotoComparison({ subject, selectedComps, subjectPhoto }: PhotoC
 
       <div className="p-6 bg-gradient-to-b from-ivory to-cream dark:from-[#1a1a24] dark:to-[#111118]">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <PropertyCard
+            title={subject.address || 'Subject Property'}
+            photo={subjectPhotos}
+            details={`${subject.bedrooms}bd · ${subject.bathrooms}ba · ${subject.sqft.toLocaleString()} sf`}
+            isSubject
+            onClick={handleSubjectClick}
+          />
+
           {displayedComps.map((comp) => (
             <PropertyCard
               key={comp.id}
