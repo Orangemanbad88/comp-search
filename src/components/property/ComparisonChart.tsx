@@ -19,10 +19,10 @@ interface Metric {
 
 const metrics: Metric[] = [
   { key: 'salePrice', label: 'Sale Price', format: (v) => formatCurrency(v) },
-  { key: 'pricePerSqft', label: '$/Sq Ft', format: (v) => `$${v}` },
-  { key: 'sqft', label: 'Sq Ft', format: (v) => v.toLocaleString(), subjectKey: 'sqft' },
-  { key: 'bedrooms', label: 'Beds', format: (v) => v.toString(), subjectKey: 'bedrooms' },
-  { key: 'bathrooms', label: 'Baths', format: (v) => v.toString(), subjectKey: 'bathrooms' },
+  { key: 'pricePerSqft', label: '$/Sq Ft', format: (v) => `$${v}/sf` },
+  { key: 'sqft', label: 'Sq Ft', format: (v) => `${v.toLocaleString()} sf`, subjectKey: 'sqft' },
+  { key: 'bedrooms', label: 'Bedrooms', format: (v) => `${v} bd`, subjectKey: 'bedrooms' },
+  { key: 'bathrooms', label: 'Bathrooms', format: (v) => `${v} ba`, subjectKey: 'bathrooms' },
 ];
 
 const colors = [

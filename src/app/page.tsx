@@ -8,7 +8,7 @@ import { CompResultsTable } from '@/components/property/CompResultsTable';
 import { AdjustmentGrid, CompAdjustments } from '@/components/property/AdjustmentGrid';
 import { PhotoComparison } from '@/components/property/PhotoComparison';
 import { MapView } from '@/components/property/MapView';
-import { ComparisonChart } from '@/components/property/ComparisonChart';
+
 import { PropertyDetailModal } from '@/components/property/PropertyDetailModal';
 import { ExportButtons } from '@/components/ui/ExportButtons';
 import { SaveAnalysisDialog } from '@/components/ui/SaveAnalysisDialog';
@@ -36,6 +36,7 @@ function HomeContent() {
   const [searchMode, setSearchMode] = useState<SearchMode>('active');
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveNotice, setSaveNotice] = useState(false);
+  const [activeCompId, setActiveCompId] = useState<string | null>(null);
   const searchParams = useSearchParams();
 
   // Load saved analysis from ?load=<id> OR auto-search on page load
@@ -58,7 +59,8 @@ function HomeContent() {
         return;
       }
     }
-    // No auto-search on mount — wait for user action
+    // Auto-search on mount with default subject
+    handleSearch(defaultSubject, defaultCriteria);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -101,9 +103,17 @@ function HomeContent() {
   };
 
   const handleToggleSelect = (id: string) => {
-    setResults(results.map(comp =>
-      comp.id === id ? { ...comp, selected: !comp.selected } : comp
+    const comp = results.find(c => c.id === id);
+    const wasSelected = comp?.selected;
+    setResults(results.map(c =>
+      c.id === id ? { ...c, selected: !c.selected } : c
     ));
+    // When selecting a comp, set it as the active side-by-side comparison
+    if (!wasSelected) {
+      setActiveCompId(id);
+    } else if (activeCompId === id) {
+      setActiveCompId(null);
+    }
     if (selectedProperty && selectedProperty.id === id) {
       setSelectedProperty(prev => prev ? { ...prev, selected: !prev.selected } : null);
     }
@@ -237,6 +247,16 @@ function HomeContent() {
               </button>
             </div>
 
+            {/* Map View — prominent position near top */}
+            {subject && hasSearched && results.length > 0 && (
+              <MapView
+                subject={subject}
+                comps={results}
+                selectedComps={selectedComps}
+                onToggleSelect={handleToggleSelect}
+              />
+            )}
+
             {/* Results Card */}
             <div className="card-premium rounded-xl overflow-hidden">
               <div className="px-6 py-4 border-b border-walnut/10 dark:border-gold/10 flex items-center justify-between bg-gradient-to-r from-cream to-ivory dark:from-[#111118] dark:to-[#1a1a24]">
@@ -285,27 +305,14 @@ function HomeContent() {
               </div>
             </div>
 
-            {/* Map View */}
-            {subject && hasSearched && results.length > 0 && (
-              <MapView
-                subject={subject}
-                comps={results}
-                selectedComps={selectedComps}
-                onToggleSelect={handleToggleSelect}
-              />
-            )}
-
-            {/* Comparison Chart */}
-            {subject && selectedComps.length > 0 && (
-              <ComparisonChart subject={subject} selectedComps={selectedComps} />
-            )}
-
-            {/* Photo Comparison */}
+            {/* Side-by-Side Comparison — shown inline when a comp is selected */}
             {subject && selectedComps.length > 0 && (
               <PhotoComparison
                 subject={subject}
                 selectedComps={selectedComps}
                 subjectPhoto={subject.photos?.[0]}
+                activeCompId={activeCompId}
+                onActiveCompChange={setActiveCompId}
               />
             )}
 

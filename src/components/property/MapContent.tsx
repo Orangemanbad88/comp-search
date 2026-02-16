@@ -49,7 +49,7 @@ export default function MapContent({ subject, comps, selectedComps, onToggleSele
 
   if (!mounted || !MapComponents) {
     return (
-      <div className="h-80 bg-slate-100 rounded-xl flex items-center justify-center">
+      <div className="h-64 bg-slate-100 rounded-xl flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-slate-200 border-t-blue-600 mb-2"></div>
           <p className="text-slate-500 text-sm">Loading map...</p>
@@ -64,7 +64,7 @@ export default function MapContent({ subject, comps, selectedComps, onToggleSele
   const selectedIds = new Set(selectedComps.map(c => c.id));
 
   return (
-    <div className="h-80 rounded-xl overflow-hidden border border-slate-200">
+    <div className="h-64 rounded-xl overflow-hidden border border-slate-200">
       <MapContainer
         center={[subjectLat, subjectLng]}
         zoom={13}

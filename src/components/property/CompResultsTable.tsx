@@ -43,9 +43,12 @@ function SimilarityBadge({ score }: { score: number }) {
   );
 }
 
+const INITIAL_DISPLAY_COUNT = 10;
+
 export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: CompResultsTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('similarityScore');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [showAll, setShowAll] = useState(false);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -71,6 +74,9 @@ export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: C
       return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
     }
   });
+
+  const displayedResults = showAll ? sortedResults : sortedResults.slice(0, INITIAL_DISPLAY_COUNT);
+  const hasMore = sortedResults.length > INITIAL_DISPLAY_COUNT;
 
   const SortHeader = ({ label, sortKeyName, className }: { label: string; sortKeyName: SortKey; className?: string }) => (
     <th
@@ -131,7 +137,7 @@ export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: C
             </tr>
           </thead>
           <tbody className="divide-y divide-walnut/5 dark:divide-gold/5">
-            {sortedResults.map((comp) => (
+            {displayedResults.map((comp) => (
               <tr
                 key={comp.id}
                 className={cn(
@@ -205,7 +211,7 @@ export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: C
 
       {/* Mobile Cards */}
       <div className="md:hidden space-y-3">
-        {sortedResults.map((comp) => (
+        {displayedResults.map((comp) => (
           <div
             key={comp.id}
             className={cn(
@@ -277,6 +283,32 @@ export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: C
           </div>
         ))}
       </div>
+
+      {/* Show More / Show Less */}
+      {hasMore && (
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-lg border border-walnut/20 dark:border-gold/20 text-walnut dark:text-cream/70 hover:bg-walnut/5 dark:hover:bg-gold/10 hover:text-charcoal dark:hover:text-cream transition-colors"
+          >
+            {showAll ? (
+              <>
+                Show Less
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+                </svg>
+              </>
+            ) : (
+              <>
+                Show All {sortedResults.length} Properties
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
