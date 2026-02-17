@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { SubjectPropertyForm, defaultSubject, defaultCriteria } from '@/components/search/SubjectPropertyForm';
+import { SubjectPropertyForm, emptySubject, defaultCriteria } from '@/components/search/SubjectPropertyForm';
 import { SubjectMap } from '@/components/search/SubjectMap';
 import { CompResultsTable } from '@/components/property/CompResultsTable';
 import { AdjustmentGrid, CompAdjustments } from '@/components/property/AdjustmentGrid';
@@ -28,7 +28,7 @@ function HomeContent() {
   const [results, setResults] = useState<CompResult[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [formSubject, setFormSubject] = useState<SubjectProperty>(defaultSubject);
+  const [formSubject, setFormSubject] = useState<SubjectProperty>(emptySubject);
   const [subject, setSubject] = useState<SubjectProperty | null>(null);
   const [adjustments, setAdjustments] = useState<CompAdjustments>({});
   const [indicatedValue, setIndicatedValue] = useState<number>(0);
@@ -59,8 +59,7 @@ function HomeContent() {
         return;
       }
     }
-    // Auto-search on mount with default subject
-    handleSearch(defaultSubject, defaultCriteria);
+    // No auto-search — wait for user to set a subject
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

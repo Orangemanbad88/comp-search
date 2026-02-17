@@ -33,18 +33,18 @@ const CAPE_MAY_CITIES = [
   'West Wildwood',
 ];
 
-export const defaultSubject: SubjectProperty = {
-  address: '205 84th Street',
-  city: 'Sea Isle City',
+export const emptySubject: SubjectProperty = {
+  address: '',
+  city: '',
   state: 'NJ',
-  zip: '08243',
-  bedrooms: 3,
-  bathrooms: 2,
-  sqft: 1800,
-  yearBuilt: 1970,
+  zip: '',
+  bedrooms: 0,
+  bathrooms: 0,
+  sqft: 0,
+  yearBuilt: 0,
   propertyType: 'Single Family',
-  lat: 39.1534,
-  lng: -74.6929,
+  lat: 0,
+  lng: 0,
 };
 
 export const defaultCriteria: SearchCriteria = {
@@ -94,6 +94,7 @@ export function SubjectPropertyForm({ onSearch, isSearching = false, searchMode 
               value={subject.city}
               onChange={(e) => setSubject({ ...subject, city: e.target.value })}
             >
+              <option value="">Select city...</option>
               {CAPE_MAY_CITIES.map((city) => (
                 <option key={city} value={city}>{city}</option>
               ))}

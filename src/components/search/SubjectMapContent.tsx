@@ -56,6 +56,7 @@ export default function SubjectMapContent({ subject, onLocationSelect, listings 
     subject?.lat && subject?.lng ? [subject.lat, subject.lng] : null
   );
   const [loading, setLoading] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -91,8 +92,18 @@ export default function SubjectMapContent({ subject, onLocationSelect, listings 
   const centerLat = subject?.lat || 39.08;
   const centerLng = subject?.lng || -74.80;
 
-  // Listings with valid coordinates
-  const mappableListings = listings.filter(l => l.lat !== 0 && l.lng !== 0);
+  // Listings with valid coordinates, excluding the one at subject/marker position
+  const mappableListings = listings.filter(l => {
+    if (l.lat === 0 && l.lng === 0) return false;
+    // Hide listing that overlaps with the current subject marker
+    if (markerPos && Math.abs(l.lat - markerPos[0]) < 0.0001 && Math.abs(l.lng - markerPos[1]) < 0.0001) return false;
+    return true;
+  });
+
+  function showConfirmation() {
+    setConfirmed(true);
+    setTimeout(() => setConfirmed(false), 1500);
+  }
 
   async function handleMapClick(lat: number, lng: number) {
     setMarkerPos([lat, lng]);
@@ -111,8 +122,10 @@ export default function SubjectMapContent({ subject, onLocationSelect, listings 
         lat,
         lng,
       });
+      showConfirmation();
     } catch {
       onLocationSelect({ city: findNearestCity(lat, lng), lat, lng });
+      showConfirmation();
     } finally {
       setLoading(false);
     }
@@ -136,6 +149,7 @@ export default function SubjectMapContent({ subject, onLocationSelect, listings 
       lat,
       lng,
     });
+    showConfirmation();
   }
 
   function ClickHandler() {
@@ -201,6 +215,12 @@ export default function SubjectMapContent({ subject, onLocationSelect, listings 
             <div className="animate-spin rounded-full h-4 w-4 border-2 border-walnut/20 dark:border-gold/20 border-t-burgundy dark:border-t-gold"></div>
             Locating...
           </div>
+        </div>
+      )}
+
+      {confirmed && (
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-[1000] px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold shadow-lg animate-pulse">
+          Subject set
         </div>
       )}
 
