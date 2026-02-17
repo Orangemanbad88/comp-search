@@ -43,8 +43,8 @@ export const emptySubject: SubjectProperty = {
   sqft: 0,
   yearBuilt: 0,
   propertyType: 'Single Family',
-  lat: 0,
-  lng: 0,
+  lat: 39.1534,
+  lng: -74.6929,
 };
 
 export const defaultCriteria: SearchCriteria = {

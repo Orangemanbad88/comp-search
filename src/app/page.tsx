@@ -26,6 +26,8 @@ export default function Home() {
 
 function HomeContent() {
   const [results, setResults] = useState<CompResult[]>([]);
+  const [allListings, setAllListings] = useState<CompResult[]>([]);
+  const [isLoadingListings, setIsLoadingListings] = useState(true);
   const [hasSearched, setHasSearched] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [formSubject, setFormSubject] = useState<SubjectProperty>(emptySubject);
@@ -39,12 +41,13 @@ function HomeContent() {
   const [activeCompId, setActiveCompId] = useState<string | null>(null);
   const searchParams = useSearchParams();
 
-  // Load saved analysis from ?load=<id> OR auto-search on page load
+  // Load all active listings on mount for map browsing + saved analysis
   const hasAutoSearched = useRef(false);
   useEffect(() => {
     if (hasAutoSearched.current) return;
     hasAutoSearched.current = true;
 
+    // Load saved analysis if ?load=<id>
     const loadId = searchParams.get('load');
     if (loadId) {
       const saved = getAnalysis(loadId);
@@ -56,10 +59,20 @@ function HomeContent() {
         setIndicatedValue(saved.indicatedValue);
         setSearchMode(saved.searchMode);
         setHasSearched(true);
-        return;
       }
     }
-    // No auto-search — wait for user to set a subject
+
+    // Fetch all active listings for map browse
+    fetch('/api/listings')
+      .then(res => res.json())
+      .then((data: CompResult[]) => {
+        setAllListings(data);
+        setIsLoadingListings(false);
+      })
+      .catch(err => {
+        console.error('Failed to load listings:', err);
+        setIsLoadingListings(false);
+      });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -98,7 +111,9 @@ function HomeContent() {
 
   const handleModeSwitch = (mode: SearchMode) => {
     setSearchMode(mode);
-    handleSearch(formSubject, defaultCriteria, mode);
+    if (hasSearched) {
+      handleSearch(formSubject, defaultCriteria, mode);
+    }
   };
 
   const handleToggleSelect = (id: string) => {
@@ -203,7 +218,7 @@ function HomeContent() {
                   <SubjectMap
                     subject={formSubject}
                     onLocationSelect={handleMapLocationSelect}
-                    listings={results}
+                    listings={hasSearched ? results : allListings}
                   />
                 </div>
                 {/* Scrollable form area */}
@@ -265,29 +280,37 @@ function HomeContent() {
                   <svg className="w-5 h-5 text-burgundy dark:text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
-                  {searchMode === 'active' ? 'Active Listings' : 'Comparable Sales'}
+                  {hasSearched
+                    ? searchMode === 'active' ? 'Active Listings' : 'Comparable Sales'
+                    : 'Active Listings'}
                 </h2>
-                {hasSearched && results.length > 0 && (
+                {hasSearched && results.length > 0 ? (
                   <span className="text-sm text-walnut dark:text-gold-light/70 bg-walnut/5 dark:bg-gold/10 px-3 py-1 rounded-full">
                     {searchMode === 'active'
                       ? `${results.length} active`
                       : `${selectedComps.length} of ${results.length} selected`}
                   </span>
-                )}
+                ) : !hasSearched && allListings.length > 0 ? (
+                  <span className="text-sm text-walnut dark:text-gold-light/70 bg-walnut/5 dark:bg-gold/10 px-3 py-1 rounded-full">
+                    {allListings.length} active
+                  </span>
+                ) : null}
               </div>
               <div className="p-6 bg-gradient-to-b from-ivory to-cream dark:from-[#1a1a24] dark:to-[#111118]">
-                {!hasSearched ? (
+                {!hasSearched && isLoadingListings ? (
                   <div className="text-center py-16">
-                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-burgundy/10 to-burgundy/5 dark:from-gold/10 dark:to-gold/5 flex items-center justify-center border border-burgundy/20 dark:border-gold/20">
-                      <svg className="w-10 h-10 text-burgundy/60 dark:text-gold/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
+                    <div className="inline-flex items-center justify-center w-20 h-20 mb-6">
+                      <div className="w-16 h-16 border-4 border-burgundy/20 dark:border-gold/20 border-t-burgundy dark:border-t-gold rounded-full animate-spin"></div>
                     </div>
-                    <h3 className="font-display text-2xl font-semibold text-charcoal dark:text-cream mb-2">Ready to Search</h3>
-                    <p className="text-walnut dark:text-cream/60 max-w-md mx-auto leading-relaxed">
-                      Enter your subject property details and search criteria to discover comparable sales in your market.
-                    </p>
+                    <h3 className="font-display text-2xl font-semibold text-charcoal dark:text-cream mb-2">Loading Listings...</h3>
+                    <p className="text-walnut dark:text-cream/60">Fetching active listings from Cape May County</p>
                   </div>
+                ) : !hasSearched ? (
+                  <CompResultsTable
+                    results={allListings}
+                    onToggleSelect={() => {}}
+                    onPropertyClick={handlePropertyClick}
+                  />
                 ) : isSearching ? (
                   <div className="text-center py-16">
                     <div className="inline-flex items-center justify-center w-20 h-20 mb-6">

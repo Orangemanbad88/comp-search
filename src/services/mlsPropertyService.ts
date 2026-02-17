@@ -117,6 +117,36 @@ export class MLSPropertyService implements PropertyService {
     };
   }
 
+  async getAllActive(): Promise<CompResult[]> {
+    if (!this.hasCredentials()) return [];
+    try {
+      const query = `(${FIELDS.city}=|${Object.values(CITY_LOOKUP).join(',')}),(${FIELDS.statusCat}=|${STATUS_ACTIVE})`;
+      const config = {
+        loginUrl: this.config.retsUrl!,
+        username: this.config.username!,
+        password: this.config.password!,
+        userAgent: this.config.userAgent,
+      };
+      const [residential, condo] = await Promise.all([
+        retsSearch(config, 'Property', 'RE_1', query, SELECT_FIELDS, 100),
+        retsSearch(config, 'Property', 'CT_5', query, SELECT_FIELDS, 100).catch(() => []),
+      ]);
+      return [...residential, ...condo].map((listing) => {
+        const property = this.mapToProperty(listing, 'active');
+        return {
+          ...property,
+          distanceMiles: 0,
+          pricePerSqft: property.sqft > 0 ? Math.round(property.salePrice / property.sqft) : 0,
+          selected: false,
+          similarityScore: 0,
+        };
+      });
+    } catch (error) {
+      console.error('MLS getAllActive failed:', error);
+      return [];
+    }
+  }
+
   async searchComps(subject: SubjectProperty, mode: SearchMode = 'sold'): Promise<CompResult[]> {
     if (!this.hasCredentials()) {
       console.warn('MLS credentials not configured');
