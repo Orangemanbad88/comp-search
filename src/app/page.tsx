@@ -138,6 +138,12 @@ function HomeContent() {
     setIndicatedValue(newIndicatedValue);
   }, []);
 
+  const handleBrowseToggleSelect = (id: string) => {
+    setAllListings(prev => prev.map(c =>
+      c.id === id ? { ...c, selected: !c.selected } : c
+    ));
+  };
+
   const handlePropertyClick = (property: CompResult) => {
     setSelectedProperty(property);
   };
@@ -205,7 +211,7 @@ function HomeContent() {
             <div className="lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] flex flex-col">
               <div className="card-premium rounded-xl overflow-hidden flex flex-col lg:min-h-0">
                 {/* Leather Header */}
-                <div className="leather-texture px-6 py-3 flex-shrink-0">
+                <div className="wood-grain px-6 py-3 flex-shrink-0">
                   <h2 className="font-display text-lg font-semibold text-cream flex items-center gap-3 relative z-10">
                     <svg className="w-5 h-5 text-gold-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -306,9 +312,8 @@ function HomeContent() {
                 ) : !hasSearched ? (
                   <CompResultsTable
                     results={allListings}
-                    onToggleSelect={() => {}}
+                    onToggleSelect={handleBrowseToggleSelect}
                     onPropertyClick={handlePropertyClick}
-                    showSelect={false}
                   />
                 ) : isSearching ? (
                   <div className="text-center py-16">
