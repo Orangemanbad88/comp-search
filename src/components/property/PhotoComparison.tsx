@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { CompResult, SubjectProperty } from '@/types/property';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 interface PhotoComparisonProps {
@@ -16,18 +16,23 @@ interface PhotoComparisonProps {
 
 // No stock photos — show "no photo" placeholder when MLS photos unavailable
 
+interface DetailRow {
+  label: string;
+  value: string;
+}
+
 function PhotoPanel({
   title,
+  subtitle,
   photos,
-  details,
-  price,
+  detailRows,
   label,
   labelClass,
 }: {
   title: string;
+  subtitle?: string;
   photos: string[];
-  details: string;
-  price?: string;
+  detailRows: DetailRow[];
   label: string;
   labelClass: string;
 }) {
@@ -120,8 +125,15 @@ function PhotoPanel({
       {/* Details */}
       <div className="p-4 bg-ivory dark:bg-[#1a1a24]">
         <h4 className="font-semibold text-charcoal dark:text-cream text-sm truncate">{title}</h4>
-        <p className="text-xs text-walnut/60 dark:text-cream/40 mt-0.5">{details}</p>
-        {price && <p className="text-sm font-bold text-burgundy dark:text-gold mt-1.5">{price}</p>}
+        {subtitle && <p className="text-xs text-walnut/60 dark:text-cream/40 mt-0.5">{subtitle}</p>}
+        <div className="mt-2 space-y-1">
+          {detailRows.map((row) => (
+            <div key={row.label} className="flex justify-between text-xs">
+              <span className="text-walnut/60 dark:text-cream/40">{row.label}</span>
+              <span className="font-medium text-charcoal dark:text-cream">{row.value}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -176,8 +188,14 @@ export function PhotoComparison({ subject, selectedComps, subjectPhoto, activeCo
         <PhotoPanel
           key={`subject`}
           title={subject.address || 'Subject Property'}
+          subtitle={`${subject.city}, ${subject.state} ${subject.zip}`}
           photos={subjectPhotos}
-          details={`${subject.bedrooms}bd · ${subject.bathrooms}ba · ${subject.sqft.toLocaleString()} sf`}
+          detailRows={[
+            { label: 'Type', value: subject.propertyType },
+            { label: 'Bed / Bath', value: `${subject.bedrooms} / ${subject.bathrooms}` },
+            { label: 'Sq Ft', value: subject.sqft.toLocaleString() },
+            { label: 'Year Built', value: subject.yearBuilt ? String(subject.yearBuilt) : '—' },
+          ]}
           label="Subject"
           labelClass="bg-burgundy dark:bg-gold text-cream dark:text-charcoal"
         />
@@ -186,9 +204,18 @@ export function PhotoComparison({ subject, selectedComps, subjectPhoto, activeCo
         <PhotoPanel
           key={activeComp.id}
           title={activeComp.address}
+          subtitle={`${activeComp.city}, ${activeComp.state} ${activeComp.zip}`}
           photos={compPhotos}
-          details={`${activeComp.bedrooms}bd · ${activeComp.bathrooms}ba · ${activeComp.sqft.toLocaleString()} sf`}
-          price={formatCurrency(activeComp.salePrice)}
+          detailRows={[
+            { label: 'Price', value: formatCurrency(activeComp.salePrice) },
+            { label: 'Type', value: activeComp.propertyType },
+            { label: 'Bed / Bath', value: `${activeComp.bedrooms} / ${activeComp.bathrooms}` },
+            { label: 'Sq Ft', value: activeComp.sqft.toLocaleString() },
+            { label: '$/Sq Ft', value: `$${activeComp.pricePerSqft}` },
+            { label: 'Year Built', value: activeComp.yearBuilt ? String(activeComp.yearBuilt) : '—' },
+            { label: 'Distance', value: `${activeComp.distanceMiles.toFixed(2)} mi` },
+            { label: 'Date', value: formatDate(activeComp.saleDate) },
+          ]}
           label="Comparable"
           labelClass="bg-walnut/10 dark:bg-gold/10 text-walnut dark:text-cream/70"
         />
