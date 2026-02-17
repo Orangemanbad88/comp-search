@@ -261,17 +261,15 @@ function HomeContent() {
               </button>
             </div>
 
-            {/* Map View — desktop only (mobile shows it above sidebar) */}
-            {subject && hasSearched && results.length > 0 && (
-              <div className="hidden lg:block">
-                <MapView
-                  subject={subject}
-                  comps={results}
-                  selectedComps={selectedComps}
-                  onToggleSelect={handleToggleSelect}
-                />
-              </div>
-            )}
+            {/* Map View — desktop only */}
+            <div className="hidden lg:block">
+              <MapView
+                subject={subject ?? formSubject}
+                comps={hasSearched ? results : allListings}
+                selectedComps={selectedComps}
+                onToggleSelect={hasSearched ? handleToggleSelect : () => {}}
+              />
+            </div>
 
             {/* Results Card */}
             <div className="card-premium rounded-xl overflow-hidden">
