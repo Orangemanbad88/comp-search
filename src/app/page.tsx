@@ -186,10 +186,10 @@ function HomeContent() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Sidebar - Subject Property Form */}
-          <div className="lg:col-span-4 xl:col-span-3">
-            <div className="sticky top-20 max-h-[calc(100vh-6rem)] flex flex-col">
-              <div className="card-premium rounded-xl overflow-hidden flex flex-col min-h-0">
+          {/* Sidebar - Subject Property Form (pushed below main content on mobile) */}
+          <div className="order-2 lg:order-none lg:col-span-4 xl:col-span-3">
+            <div className="lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] flex flex-col">
+              <div className="card-premium rounded-xl overflow-hidden flex flex-col lg:min-h-0">
                 {/* Leather Header */}
                 <div className="leather-texture px-6 py-3 flex-shrink-0">
                   <h2 className="font-display text-lg font-semibold text-cream flex items-center gap-3 relative z-10">
@@ -208,7 +208,7 @@ function HomeContent() {
                   />
                 </div>
                 {/* Scrollable form area */}
-                <div className="px-6 pb-6 overflow-y-auto min-h-0 bg-gradient-to-b from-cream-dark to-cream-dark dark:from-[#0a0a0f] dark:to-[#0a0a0f]">
+                <div className="px-6 pb-6 lg:overflow-y-auto lg:min-h-0 bg-gradient-to-b from-cream-dark to-cream-dark dark:from-[#0a0a0f] dark:to-[#0a0a0f]">
                   <SubjectPropertyForm
                     onSearch={handleSearch}
                     isSearching={isSearching}
@@ -221,8 +221,8 @@ function HomeContent() {
             </div>
           </div>
 
-          {/* Main Content Area */}
-          <div className="lg:col-span-8 xl:col-span-9 space-y-8">
+          {/* Main Content Area (map + comps first on mobile) */}
+          <div className="order-1 lg:order-none lg:col-span-8 xl:col-span-9 space-y-8">
             {/* Mode Toggle */}
             <div className="flex items-center gap-1 p-1 rounded-xl bg-walnut/5 dark:bg-gold/5 border border-walnut/10 dark:border-gold/10 w-fit">
               <button
