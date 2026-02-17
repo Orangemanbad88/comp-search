@@ -117,16 +117,22 @@ function HomeContent() {
   };
 
   const handleToggleSelect = (id: string) => {
-    const comp = results.find(c => c.id === id);
-    const wasSelected = comp?.selected;
-    setResults(results.map(c =>
-      c.id === id ? { ...c, selected: !c.selected } : c
-    ));
-    // When selecting a comp, set it as the active side-by-side comparison
-    if (!wasSelected) {
-      setActiveCompId(id);
-    } else if (activeCompId === id) {
-      setActiveCompId(null);
+    if (hasSearched) {
+      const comp = results.find(c => c.id === id);
+      const wasSelected = comp?.selected;
+      setResults(results.map(c =>
+        c.id === id ? { ...c, selected: !c.selected } : c
+      ));
+      // When selecting a comp, set it as the active side-by-side comparison
+      if (!wasSelected) {
+        setActiveCompId(id);
+      } else if (activeCompId === id) {
+        setActiveCompId(null);
+      }
+    } else {
+      setAllListings(prev => prev.map(c =>
+        c.id === id ? { ...c, selected: !c.selected } : c
+      ));
     }
     if (selectedProperty && selectedProperty.id === id) {
       setSelectedProperty(prev => prev ? { ...prev, selected: !prev.selected } : null);
@@ -137,12 +143,6 @@ function HomeContent() {
     setAdjustments(newAdjustments);
     setIndicatedValue(newIndicatedValue);
   }, []);
-
-  const handleBrowseToggleSelect = (id: string) => {
-    setAllListings(prev => prev.map(c =>
-      c.id === id ? { ...c, selected: !c.selected } : c
-    ));
-  };
 
   const handlePropertyClick = (property: CompResult) => {
     setSelectedProperty(property);
@@ -273,7 +273,7 @@ function HomeContent() {
                 subject={subject ?? formSubject}
                 comps={hasSearched ? results : allListings}
                 selectedComps={selectedComps}
-                onToggleSelect={hasSearched ? handleToggleSelect : () => {}}
+                onToggleSelect={handleToggleSelect}
               />
             </div>
 
@@ -312,7 +312,7 @@ function HomeContent() {
                 ) : !hasSearched ? (
                   <CompResultsTable
                     results={allListings}
-                    onToggleSelect={handleBrowseToggleSelect}
+                    onToggleSelect={handleToggleSelect}
                     onPropertyClick={handlePropertyClick}
                   />
                 ) : isSearching ? (

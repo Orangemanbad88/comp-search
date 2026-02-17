@@ -59,15 +59,15 @@ export default function MapContent({ subject, comps, selectedComps, onToggleSele
   }
 
   const { MapContainer, TileLayer, Marker, Popup, CircleMarker } = MapComponents;
-  const subjectLat = subject.lat || 26.6406;
-  const subjectLng = subject.lng || -81.8723;
+  const subjectLat = subject.lat || 39.08;
+  const subjectLng = subject.lng || -74.80;
   const selectedIds = new Set(selectedComps.map(c => c.id));
 
   return (
     <div className="h-64 rounded-xl overflow-hidden border border-slate-200">
       <MapContainer
         center={[subjectLat, subjectLng]}
-        zoom={13}
+        zoom={11}
         className="h-full w-full"
       >
         <TileLayer
