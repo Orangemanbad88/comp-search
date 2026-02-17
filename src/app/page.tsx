@@ -186,7 +186,19 @@ function HomeContent() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Sidebar - Subject Property Form (pushed below main content on mobile) */}
+          {/* Mobile: Map on top */}
+          {subject && hasSearched && results.length > 0 && (
+            <div className="order-1 lg:hidden">
+              <MapView
+                subject={subject}
+                comps={results}
+                selectedComps={selectedComps}
+                onToggleSelect={handleToggleSelect}
+              />
+            </div>
+          )}
+
+          {/* Sidebar - Subject Property Form (between map and listings on mobile) */}
           <div className="order-2 lg:order-none lg:col-span-4 xl:col-span-3">
             <div className="lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] flex flex-col">
               <div className="card-premium rounded-xl overflow-hidden flex flex-col lg:min-h-0">
@@ -221,8 +233,8 @@ function HomeContent() {
             </div>
           </div>
 
-          {/* Main Content Area (map + comps first on mobile) */}
-          <div className="order-1 lg:order-none lg:col-span-8 xl:col-span-9 space-y-8">
+          {/* Main Content Area */}
+          <div className="order-3 lg:order-none lg:col-span-8 xl:col-span-9 space-y-8">
             {/* Mode Toggle */}
             <div className="flex items-center gap-1 p-1 rounded-xl bg-walnut/5 dark:bg-gold/5 border border-walnut/10 dark:border-gold/10 w-fit">
               <button
@@ -247,14 +259,16 @@ function HomeContent() {
               </button>
             </div>
 
-            {/* Map View — prominent position near top */}
+            {/* Map View — desktop only (mobile shows it above sidebar) */}
             {subject && hasSearched && results.length > 0 && (
-              <MapView
-                subject={subject}
-                comps={results}
-                selectedComps={selectedComps}
-                onToggleSelect={handleToggleSelect}
-              />
+              <div className="hidden lg:block">
+                <MapView
+                  subject={subject}
+                  comps={results}
+                  selectedComps={selectedComps}
+                  onToggleSelect={handleToggleSelect}
+                />
+              </div>
             )}
 
             {/* Results Card */}
