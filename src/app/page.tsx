@@ -310,6 +310,7 @@ function HomeContent() {
                     results={allListings}
                     onToggleSelect={() => {}}
                     onPropertyClick={handlePropertyClick}
+                    showSelect={false}
                   />
                 ) : isSearching ? (
                   <div className="text-center py-16">

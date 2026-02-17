@@ -8,6 +8,7 @@ interface CompResultsTableProps {
   results: CompResult[];
   onToggleSelect: (id: string) => void;
   onPropertyClick?: (property: CompResult) => void;
+  showSelect?: boolean;
 }
 
 type SortKey = 'similarityScore' | 'salePrice' | 'saleDate' | 'distanceMiles' | 'sqft' | 'pricePerSqft';
@@ -46,7 +47,7 @@ function SimilarityBadge({ score }: { score: number }) {
 const INITIAL_DISPLAY_COUNT = 10;
 const MOBILE_DISPLAY_COUNT = 5;
 
-export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: CompResultsTableProps) {
+export function CompResultsTable({ results, onToggleSelect, onPropertyClick, showSelect = true }: CompResultsTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('similarityScore');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [showAll, setShowAll] = useState(false);
@@ -120,9 +121,11 @@ export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: C
         <table className="min-w-full">
           <thead>
             <tr className="border-b border-walnut/10 dark:border-gold/10">
-              <th className="px-3 py-3 w-10">
-                <span className="sr-only">Select</span>
-              </th>
+              {showSelect && (
+                <th className="px-3 py-3 w-10">
+                  <span className="sr-only">Select</span>
+                </th>
+              )}
               <th className="px-3 py-3 text-left text-xs font-semibold text-walnut dark:text-gold-light/70 uppercase tracking-wider">
                 Property
               </th>
@@ -151,23 +154,25 @@ export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: C
                     : 'hover:bg-walnut/5 dark:hover:bg-cream/5'
                 )}
               >
-                <td className="px-3 py-3">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onToggleSelect(comp.id); }}
-                    className={cn(
-                      'w-5 h-5 rounded border-2 flex items-center justify-center transition-all',
-                      comp.selected
-                        ? 'bg-burgundy dark:bg-gold border-burgundy dark:border-gold'
-                        : 'border-walnut/30 dark:border-gold/30 hover:border-burgundy dark:hover:border-gold'
-                    )}
-                  >
-                    {comp.selected && (
-                      <svg className="w-3 h-3 text-cream" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </button>
-                </td>
+                {showSelect && (
+                  <td className="px-3 py-3">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onToggleSelect(comp.id); }}
+                      className={cn(
+                        'w-5 h-5 rounded border-2 flex items-center justify-center transition-all',
+                        comp.selected
+                          ? 'bg-burgundy dark:bg-gold border-burgundy dark:border-gold'
+                          : 'border-walnut/30 dark:border-gold/30 hover:border-burgundy dark:hover:border-gold'
+                      )}
+                    >
+                      {comp.selected && (
+                        <svg className="w-3 h-3 text-cream" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </button>
+                  </td>
+                )}
                 <td className="px-3 py-3">
                   <div className="text-sm font-medium text-charcoal dark:text-cream">{comp.address}</div>
                   <div className="text-xs text-walnut/70 dark:text-cream/50">{comp.city}, {comp.state} {comp.zip}</div>
@@ -225,21 +230,23 @@ export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: C
           >
             <div className="flex items-start justify-between gap-3 mb-3">
               <div className="flex items-start gap-3">
-                <button
-                  onClick={() => onToggleSelect(comp.id)}
-                  className={cn(
-                    'w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 transition-all flex-shrink-0',
-                    comp.selected
-                      ? 'bg-burgundy dark:bg-gold border-burgundy dark:border-gold'
-                      : 'border-walnut/30 dark:border-gold/30'
-                  )}
-                >
-                  {comp.selected && (
-                    <svg className="w-3 h-3 text-cream" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                </button>
+                {showSelect && (
+                  <button
+                    onClick={() => onToggleSelect(comp.id)}
+                    className={cn(
+                      'w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 transition-all flex-shrink-0',
+                      comp.selected
+                        ? 'bg-burgundy dark:bg-gold border-burgundy dark:border-gold'
+                        : 'border-walnut/30 dark:border-gold/30'
+                    )}
+                  >
+                    {comp.selected && (
+                      <svg className="w-3 h-3 text-cream" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                )}
                 <div>
                   <div className="font-medium text-charcoal dark:text-cream">{comp.address}</div>
                   <div className="text-sm text-walnut/70 dark:text-cream/50">{comp.city}, {comp.state}</div>
