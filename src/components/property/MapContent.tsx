@@ -13,6 +13,7 @@ interface MapContentProps {
 
 export default function MapContent({ subject, comps, selectedComps, onToggleSelect }: MapContentProps) {
   const [mounted, setMounted] = useState(false);
+  const [showAll, setShowAll] = useState(false);
   const [MapComponents, setMapComponents] = useState<{
     MapContainer: React.ComponentType<any>;
     TileLayer: React.ComponentType<any>;
@@ -62,12 +63,14 @@ export default function MapContent({ subject, comps, selectedComps, onToggleSele
   const subjectLat = subject.lat || 39.08;
   const subjectLng = subject.lng || -74.80;
   const selectedIds = new Set(selectedComps.map(c => c.id));
+  const visibleComps = showAll ? comps : comps.slice(0, 5);
+  const hiddenCount = comps.length - 5;
 
   return (
-    <div className="h-64 rounded-xl overflow-hidden border border-slate-200">
+    <div className="relative h-64 rounded-xl overflow-hidden border border-slate-200">
       <MapContainer
         center={[subjectLat, subjectLng]}
-        zoom={11}
+        zoom={13}
         className="h-full w-full"
       >
         <TileLayer
@@ -87,7 +90,7 @@ export default function MapContent({ subject, comps, selectedComps, onToggleSele
           </Popup>
         </Marker>
 
-        {comps.map((comp) => {
+        {visibleComps.map((comp) => {
           const isSelected = selectedIds.has(comp.id);
           return (
             <CircleMarker
@@ -138,6 +141,15 @@ export default function MapContent({ subject, comps, selectedComps, onToggleSele
           );
         })}
       </MapContainer>
+
+      {!showAll && hiddenCount > 0 && (
+        <button
+          onClick={() => setShowAll(true)}
+          className="absolute bottom-3 left-1/2 -translate-x-1/2 z-[1000] px-4 py-2 text-xs font-semibold rounded-lg bg-white/95 text-slate-700 shadow-lg border border-slate-200 hover:bg-white hover:shadow-xl transition-shadow"
+        >
+          Show {hiddenCount} more comp{hiddenCount === 1 ? '' : 's'}
+        </button>
+      )}
     </div>
   );
 }
