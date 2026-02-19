@@ -228,6 +228,12 @@ input:focus, select:focus, button:focus {
   background: rgba(10, 10, 15, 0.95);
 }
 
+/* Leaflet needs immediate CSS transforms/opacity — global * transition breaks click detection and popups */
+.leaflet-container,
+.leaflet-container * {
+  transition: none !important;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

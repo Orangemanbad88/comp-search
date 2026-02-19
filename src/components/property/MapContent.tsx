@@ -100,9 +100,6 @@ export default function MapContent({ subject, comps, selectedComps, onToggleSele
                 fillOpacity: 0.9,
                 weight: 2,
               }}
-              eventHandlers={{
-                click: () => onToggleSelect(comp.id),
-              }}
             >
               <Popup>
                 <div className="text-sm p-1 min-w-[200px]">
