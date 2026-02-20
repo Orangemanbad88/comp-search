@@ -1,13 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { SubjectProperty, SearchCriteria, PropertyType, SearchMode } from '@/types/property';
+import { SubjectProperty, SearchCriteria, PropertyType } from '@/types/property';
 import { Button } from '@/components/ui/Button';
 
 interface SubjectPropertyFormProps {
   onSearch: (subject: SubjectProperty, criteria: SearchCriteria) => void;
   isSearching?: boolean;
-  searchMode?: SearchMode;
   subject: SubjectProperty;
   onSubjectChange: (subject: SubjectProperty) => void;
 }
@@ -56,8 +55,7 @@ export const defaultCriteria: SearchCriteria = {
   propertyTypeMatch: true,
 };
 
-export function SubjectPropertyForm({ onSearch, isSearching = false, searchMode = 'sold', subject, onSubjectChange }: SubjectPropertyFormProps) {
-  const isActive = searchMode === 'active';
+export function SubjectPropertyForm({ onSearch, isSearching = false, subject, onSubjectChange }: SubjectPropertyFormProps) {
   const setSubject = onSubjectChange;
   const [criteria, setCriteria] = useState<SearchCriteria>(defaultCriteria);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -214,91 +212,83 @@ export function SubjectPropertyForm({ onSearch, isSearching = false, searchMode 
 
         {filtersOpen && (
           <div className="space-y-4 pt-2">
-            {isActive ? (
-              <p className="text-xs text-walnut/60 dark:text-cream/40">
-                Showing all active listings in the selected city. Change the city above to search a different area.
-              </p>
-            ) : (
-              <>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className={labelClass}>Radius</label>
-                    <select
-                      className={inputClass}
-                      value={criteria.radiusMiles}
-                      onChange={(e) => setCriteria({ ...criteria, radiusMiles: parseFloat(e.target.value) as 0.5 | 1 | 2 | 5 })}
-                    >
-                      <option value={0.5}>0.5 mi</option>
-                      <option value={1}>1 mi</option>
-                      <option value={2}>2 mi</option>
-                      <option value={5}>5 mi</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className={labelClass}>Timeframe</label>
-                    <select
-                      className={inputClass}
-                      value={criteria.dateRangeMonths}
-                      onChange={(e) => setCriteria({ ...criteria, dateRangeMonths: parseInt(e.target.value) as 3 | 6 | 12 })}
-                    >
-                      <option value={3}>3 months</option>
-                      <option value={6}>6 months</option>
-                      <option value={12}>12 months</option>
-                    </select>
-                  </div>
-                </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelClass}>Radius</label>
+                <select
+                  className={inputClass}
+                  value={criteria.radiusMiles}
+                  onChange={(e) => setCriteria({ ...criteria, radiusMiles: parseFloat(e.target.value) as 0.5 | 1 | 2 | 5 })}
+                >
+                  <option value={0.5}>0.5 mi</option>
+                  <option value={1}>1 mi</option>
+                  <option value={2}>2 mi</option>
+                  <option value={5}>5 mi</option>
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>Timeframe</label>
+                <select
+                  className={inputClass}
+                  value={criteria.dateRangeMonths}
+                  onChange={(e) => setCriteria({ ...criteria, dateRangeMonths: parseInt(e.target.value) as 3 | 6 | 12 })}
+                >
+                  <option value={3}>3 months</option>
+                  <option value={6}>6 months</option>
+                  <option value={12}>12 months</option>
+                </select>
+              </div>
+            </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className={labelClass}>Bed +/-</label>
-                    <select
-                      className={inputClass}
-                      value={criteria.bedVariance}
-                      onChange={(e) => setCriteria({ ...criteria, bedVariance: parseInt(e.target.value) })}
-                    >
-                      <option value={0}>Exact</option>
-                      <option value={1}>+/- 1</option>
-                      <option value={2}>+/- 2</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className={labelClass}>Bath +/-</label>
-                    <select
-                      className={inputClass}
-                      value={criteria.bathVariance}
-                      onChange={(e) => setCriteria({ ...criteria, bathVariance: parseInt(e.target.value) })}
-                    >
-                      <option value={0}>Exact</option>
-                      <option value={1}>+/- 1</option>
-                      <option value={2}>+/- 2</option>
-                    </select>
-                  </div>
-                </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelClass}>Bed +/-</label>
+                <select
+                  className={inputClass}
+                  value={criteria.bedVariance}
+                  onChange={(e) => setCriteria({ ...criteria, bedVariance: parseInt(e.target.value) })}
+                >
+                  <option value={0}>Exact</option>
+                  <option value={1}>+/- 1</option>
+                  <option value={2}>+/- 2</option>
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>Bath +/-</label>
+                <select
+                  className={inputClass}
+                  value={criteria.bathVariance}
+                  onChange={(e) => setCriteria({ ...criteria, bathVariance: parseInt(e.target.value) })}
+                >
+                  <option value={0}>Exact</option>
+                  <option value={1}>+/- 1</option>
+                  <option value={2}>+/- 2</option>
+                </select>
+              </div>
+            </div>
 
-                <div>
-                  <label className={labelClass}>Sq Ft Range</label>
-                  <select
-                    className={inputClass}
-                    value={criteria.sqftVariancePercent}
-                    onChange={(e) => setCriteria({ ...criteria, sqftVariancePercent: parseInt(e.target.value) })}
-                  >
-                    <option value={10}>+/- 10%</option>
-                    <option value={20}>+/- 20%</option>
-                    <option value={30}>+/- 30%</option>
-                  </select>
-                </div>
+            <div>
+              <label className={labelClass}>Sq Ft Range</label>
+              <select
+                className={inputClass}
+                value={criteria.sqftVariancePercent}
+                onChange={(e) => setCriteria({ ...criteria, sqftVariancePercent: parseInt(e.target.value) })}
+              >
+                <option value={10}>+/- 10%</option>
+                <option value={20}>+/- 20%</option>
+                <option value={30}>+/- 30%</option>
+              </select>
+            </div>
 
-                <label className="flex items-center gap-3 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 text-burgundy dark:text-gold bg-ivory dark:bg-charcoal border-walnut/30 dark:border-gold/30 rounded focus:ring-burgundy dark:focus:ring-gold focus:ring-2 transition-colors"
-                    checked={criteria.propertyTypeMatch}
-                    onChange={(e) => setCriteria({ ...criteria, propertyTypeMatch: e.target.checked })}
-                  />
-                  <span className="text-sm text-walnut dark:text-cream/70 group-hover:text-charcoal dark:group-hover:text-cream transition-colors">Match property type</span>
-                </label>
-              </>
-            )}
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                className="w-4 h-4 text-burgundy dark:text-gold bg-ivory dark:bg-charcoal border-walnut/30 dark:border-gold/30 rounded focus:ring-burgundy dark:focus:ring-gold focus:ring-2 transition-colors"
+                checked={criteria.propertyTypeMatch}
+                onChange={(e) => setCriteria({ ...criteria, propertyTypeMatch: e.target.checked })}
+              />
+              <span className="text-sm text-walnut dark:text-cream/70 group-hover:text-charcoal dark:group-hover:text-cream transition-colors">Match property type</span>
+            </label>
           </div>
         )}
       </div>
@@ -317,7 +307,7 @@ export function SubjectPropertyForm({ onSearch, isSearching = false, searchMode 
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            {isActive ? 'Search Active Listings' : 'Search Comparables'}
+            Search Active Listings
           </span>
         )}
       </Button>

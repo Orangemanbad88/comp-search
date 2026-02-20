@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { CompResult, SubjectProperty } from '@/types/property';
-import { formatCurrency } from '@/lib/utils';
-import { cn } from '@/lib/utils';
+import { formatCurrency, cn } from '@/lib/utils';
+import { getActiveAdjustmentValues } from '@/lib/storage';
+import { SaleAdjustmentValues } from '@/types/settings';
 
 interface Adjustment {
   bedroom: number;
@@ -25,15 +26,14 @@ interface AdjustmentGridProps {
 
 export type { CompAdjustments, Adjustment };
 
-// Shore market adjustment values (Cape May County)
-const BEDROOM_VALUE = 25000;
-const BATHROOM_VALUE = 15000;
-const SQFT_VALUE = 150;
-const AGE_VALUE = 3000;
-
 export function AdjustmentGrid({ selectedComps, subject, onAdjustmentsChange }: AdjustmentGridProps) {
   const [adjustments, setAdjustments] = useState<CompAdjustments>({});
   const [otherInputs, setOtherInputs] = useState<{ [compId: string]: string }>({});
+  const [adjValues, setAdjValues] = useState<SaleAdjustmentValues>({ bedroom: 25000, bathroom: 15000, sqft: 150, age: 3000 });
+
+  useEffect(() => {
+    setAdjValues(getActiveAdjustmentValues());
+  }, []);
 
   useEffect(() => {
     setAdjustments((prevAdjustments) => {
@@ -49,16 +49,16 @@ export function AdjustmentGrid({ selectedComps, subject, onAdjustmentsChange }: 
           : 0;
 
         newAdjustments[comp.id] = {
-          bedroom: bedDiff * BEDROOM_VALUE,
-          bathroom: bathDiff * BATHROOM_VALUE,
-          sqft: sqftDiff * SQFT_VALUE,
-          age: ageDiff * AGE_VALUE,
+          bedroom: bedDiff * adjValues.bedroom,
+          bathroom: bathDiff * adjValues.bathroom,
+          sqft: sqftDiff * adjValues.sqft,
+          age: ageDiff * adjValues.age,
           other: prevAdjustments[comp.id]?.other || 0,
         };
       });
       return newAdjustments;
     });
-  }, [selectedComps, subject]);
+  }, [selectedComps, subject, adjValues]);
 
   const handleOtherChange = (compId: string, value: string) => {
     setOtherInputs({ ...otherInputs, [compId]: value });
@@ -147,19 +147,19 @@ export function AdjustmentGrid({ selectedComps, subject, onAdjustmentsChange }: 
                 <th className="text-right py-3 px-2 text-xs font-semibold text-walnut dark:text-gold-light/70 uppercase tracking-wider">Sale Price</th>
                 <th className="text-right py-3 px-2 text-xs font-semibold text-walnut dark:text-gold-light/70 uppercase tracking-wider">
                   <div>Bedroom</div>
-                  <div className="font-normal normal-case text-walnut/50 dark:text-cream/30">$25k/bed</div>
+                  <div className="font-normal normal-case text-walnut/50 dark:text-cream/30">${(adjValues.bedroom / 1000).toFixed(0)}k/bed</div>
                 </th>
                 <th className="text-right py-3 px-2 text-xs font-semibold text-walnut dark:text-gold-light/70 uppercase tracking-wider">
                   <div>Bathroom</div>
-                  <div className="font-normal normal-case text-walnut/50 dark:text-cream/30">$15k/bath</div>
+                  <div className="font-normal normal-case text-walnut/50 dark:text-cream/30">${(adjValues.bathroom / 1000).toFixed(0)}k/bath</div>
                 </th>
                 <th className="text-right py-3 px-2 text-xs font-semibold text-walnut dark:text-gold-light/70 uppercase tracking-wider">
                   <div>Sq Ft</div>
-                  <div className="font-normal normal-case text-walnut/50 dark:text-cream/30">$150/sqft</div>
+                  <div className="font-normal normal-case text-walnut/50 dark:text-cream/30">${adjValues.sqft}/sqft</div>
                 </th>
                 <th className="text-right py-3 px-2 text-xs font-semibold text-walnut dark:text-gold-light/70 uppercase tracking-wider">
                   <div>Age</div>
-                  <div className="font-normal normal-case text-walnut/50 dark:text-cream/30">$3k/yr</div>
+                  <div className="font-normal normal-case text-walnut/50 dark:text-cream/30">${(adjValues.age / 1000).toFixed(0)}k/yr</div>
                 </th>
                 <th className="text-right py-3 px-2 text-xs font-semibold text-walnut dark:text-gold-light/70 uppercase tracking-wider">Other</th>
                 <th className="text-right py-3 px-2 text-xs font-semibold text-walnut dark:text-gold-light/70 uppercase tracking-wider">Net Adj.</th>

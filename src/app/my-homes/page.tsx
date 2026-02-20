@@ -106,12 +106,8 @@ export default function MyHomesPage() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-walnut/70 dark:text-cream/50">Mode</span>
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                      analysis.searchMode === 'active'
-                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                        : 'bg-burgundy/10 text-burgundy dark:bg-gold/10 dark:text-gold-light'
-                    }`}>
-                      {analysis.searchMode === 'active' ? 'Active' : 'Sold'}
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                      Active
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">

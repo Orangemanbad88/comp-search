@@ -35,7 +35,7 @@ function HomeContent() {
   const [adjustments, setAdjustments] = useState<CompAdjustments>({});
   const [indicatedValue, setIndicatedValue] = useState<number>(0);
   const [selectedProperty, setSelectedProperty] = useState<CompResult | null>(null);
-  const [searchMode, setSearchMode] = useState<SearchMode>('active');
+  const searchMode: SearchMode = 'active';
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [saveNotice, setSaveNotice] = useState(false);
   const [activeCompId, setActiveCompId] = useState<string | null>(null);
@@ -57,7 +57,6 @@ function HomeContent() {
         setResults(saved.selectedComps.map(c => ({ ...c, selected: true })));
         setAdjustments(saved.adjustments);
         setIndicatedValue(saved.indicatedValue);
-        setSearchMode(saved.searchMode);
         setHasSearched(true);
       }
     }
@@ -83,14 +82,13 @@ function HomeContent() {
     handleSearch(updated, defaultCriteria);
   };
 
-  const handleSearch = async (subjectProperty: SubjectProperty, _criteria: SearchCriteria, mode?: SearchMode) => {
-    const activeMode = mode ?? searchMode;
+  const handleSearch = async (subjectProperty: SubjectProperty, _criteria: SearchCriteria) => {
     setIsSearching(true);
     try {
       const res = await fetch('/api/comps/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subject: subjectProperty, mode: activeMode }),
+        body: JSON.stringify({ subject: subjectProperty, mode: 'active' }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -106,13 +104,6 @@ function HomeContent() {
       console.error('Search failed:', error);
     } finally {
       setIsSearching(false);
-    }
-  };
-
-  const handleModeSwitch = (mode: SearchMode) => {
-    setSearchMode(mode);
-    if (hasSearched) {
-      handleSearch(formSubject, defaultCriteria, mode);
     }
   };
 
@@ -234,7 +225,6 @@ function HomeContent() {
                   <SubjectPropertyForm
                     onSearch={handleSearch}
                     isSearching={isSearching}
-                    searchMode={searchMode}
                     subject={formSubject}
                     onSubjectChange={setFormSubject}
                   />
@@ -245,30 +235,6 @@ function HomeContent() {
 
           {/* Main Content Area */}
           <div className="order-2 lg:order-none lg:col-span-8 xl:col-span-9 space-y-8">
-            {/* Mode Toggle */}
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-walnut/5 dark:bg-gold/5 border border-walnut/10 dark:border-gold/10 w-fit">
-              <button
-                onClick={() => handleModeSwitch('active')}
-                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                  searchMode === 'active'
-                    ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg'
-                    : 'text-walnut dark:text-cream/60 hover:text-charcoal dark:hover:text-cream hover:bg-walnut/5 dark:hover:bg-gold/5'
-                }`}
-              >
-                Active Listings
-              </button>
-              <button
-                onClick={() => handleModeSwitch('sold')}
-                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                  searchMode === 'sold'
-                    ? 'bg-gradient-to-r from-burgundy to-burgundy/90 dark:from-gold dark:to-gold-muted text-white dark:text-walnut-dark shadow-lg'
-                    : 'text-walnut dark:text-cream/60 hover:text-charcoal dark:hover:text-cream hover:bg-walnut/5 dark:hover:bg-gold/5'
-                }`}
-              >
-                Sold Comps
-              </button>
-            </div>
-
             {/* Map View — desktop only */}
             <div className="hidden lg:block">
               <MapView
@@ -286,15 +252,11 @@ function HomeContent() {
                   <svg className="w-5 h-5 text-burgundy dark:text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
-                  {hasSearched
-                    ? searchMode === 'active' ? 'Active Listings' : 'Comparable Sales'
-                    : 'Active Listings'}
+                  Active Listings
                 </h2>
                 {hasSearched && results.length > 0 ? (
                   <span className="text-sm text-walnut dark:text-gold-light/70 bg-walnut/5 dark:bg-gold/10 px-3 py-1 rounded-full">
-                    {searchMode === 'active'
-                      ? `${results.length} active`
-                      : `${selectedComps.length} of ${results.length} selected`}
+                    {selectedComps.length} of {results.length} selected
                   </span>
                 ) : !hasSearched && allListings.length > 0 ? (
                   <span className="text-sm text-walnut dark:text-gold-light/70 bg-walnut/5 dark:bg-gold/10 px-3 py-1 rounded-full">
