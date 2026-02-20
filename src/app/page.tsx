@@ -168,7 +168,9 @@ function HomeContent() {
     handleSearch(updated, defaultCriteria);
   };
 
-  const selectedComps = results.filter(r => r.selected);
+  const selectedComps = hasSearched
+    ? results.filter(r => r.selected)
+    : allListings.filter(r => r.selected);
 
   return (
     <div className="min-h-screen bg-cream dark:bg-[#0a0a0f]">
