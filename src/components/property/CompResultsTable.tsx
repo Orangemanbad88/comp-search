@@ -43,7 +43,7 @@ function SimilarityBadge({ score }: { score: number }) {
   );
 }
 
-const INITIAL_DISPLAY_COUNT = 10;
+const INITIAL_DISPLAY_COUNT = 5;
 const MOBILE_DISPLAY_COUNT = 5;
 
 export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: CompResultsTableProps) {
