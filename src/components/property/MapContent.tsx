@@ -19,6 +19,7 @@ export default function MapContent({ subject, comps, selectedComps, onToggleSele
     TileLayer: React.ComponentType<any>;
     Marker: React.ComponentType<any>;
     Popup: React.ComponentType<any>;
+    Tooltip: React.ComponentType<any>;
     CircleMarker: React.ComponentType<any>;
   } | null>(null);
 
@@ -43,6 +44,7 @@ export default function MapContent({ subject, comps, selectedComps, onToggleSele
         TileLayer: reactLeaflet.TileLayer,
         Marker: reactLeaflet.Marker,
         Popup: reactLeaflet.Popup,
+        Tooltip: reactLeaflet.Tooltip,
         CircleMarker: reactLeaflet.CircleMarker,
       });
     });
@@ -59,7 +61,7 @@ export default function MapContent({ subject, comps, selectedComps, onToggleSele
     );
   }
 
-  const { MapContainer, TileLayer, Marker, Popup, CircleMarker } = MapComponents;
+  const { MapContainer, TileLayer, Marker, Popup, Tooltip, CircleMarker } = MapComponents;
   const subjectLat = subject.lat || 39.08;
   const subjectLng = subject.lng || -74.80;
   const selectedIds = new Set(selectedComps.map(c => c.id));
@@ -103,40 +105,19 @@ export default function MapContent({ subject, comps, selectedComps, onToggleSele
                 fillOpacity: 0.9,
                 weight: 2,
               }}
+              eventHandlers={{
+                click: () => onToggleSelect(comp.id),
+              }}
             >
-              <Popup>
-                <div className="text-sm p-1 min-w-[200px]">
-                  <div className="font-semibold text-slate-900">{comp.address}</div>
-                  <div className="text-slate-500 text-xs">{comp.city}, {comp.state}</div>
-                  <div className="mt-2 pt-2 border-t border-slate-100">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">Price</span>
-                      <span className="font-bold text-slate-900">{formatCurrency(comp.salePrice)}</span>
-                    </div>
-                    <div className="flex justify-between text-xs mt-1">
-                      <span className="text-slate-500">Details</span>
-                      <span className="text-slate-700">{comp.bedrooms}bd / {comp.bathrooms}ba · {comp.sqft.toLocaleString()} sf</span>
-                    </div>
-                    <div className="flex justify-between text-xs mt-1">
-                      <span className="text-slate-500">Distance</span>
-                      <span className="text-slate-700">{comp.distanceMiles.toFixed(2)} mi</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleSelect(comp.id);
-                    }}
-                    className={`mt-3 w-full py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                      isSelected
-                        ? 'bg-red-50 text-red-600 hover:bg-red-100'
-                        : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                    }`}
-                  >
-                    {isSelected ? 'Remove Selection' : 'Select Comp'}
-                  </button>
+              <Tooltip direction="top" offset={[0, -8]} opacity={0.95}>
+                <div className="text-xs min-w-[160px]">
+                  <div className="font-semibold">{comp.address}</div>
+                  <div className="text-slate-500">{comp.city}, {comp.state}</div>
+                  <div className="font-bold mt-1">{formatCurrency(comp.salePrice)}</div>
+                  <div className="text-slate-500">{comp.bedrooms}bd / {comp.bathrooms}ba · {comp.sqft.toLocaleString()} sf</div>
+                  <div className="text-slate-400 mt-1">{isSelected ? 'Click to deselect' : 'Click to select'}</div>
                 </div>
-              </Popup>
+              </Tooltip>
             </CircleMarker>
           );
         })}
