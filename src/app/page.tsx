@@ -320,60 +320,8 @@ function HomeContent() {
               </div>
             </div>
 
-            {/* Subject Property Detail */}
-            {subject && (
-              <div ref={subjectRef} className="card-premium rounded-xl overflow-hidden">
-                <div className="wood-grain px-6 py-4 border-b border-walnut-dark/50">
-                  <h2 className="font-display text-xl font-semibold text-cream flex items-center gap-3">
-                    <svg className="w-5 h-5 text-gold-light" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                    Subject Property
-                  </h2>
-                </div>
-                <div className="p-6 bg-gradient-to-b from-ivory to-cream dark:from-[#1a1a24] dark:to-[#111118]">
-                  <div className="flex flex-col sm:flex-row gap-6">
-                    {subject.photos?.[0] && (
-                      <div className="w-full sm:w-48 h-36 rounded-lg overflow-hidden flex-shrink-0 border border-walnut/10 dark:border-gold/10">
-                        <img src={subject.photos[0]} alt={subject.address} className="w-full h-full object-cover" />
-                      </div>
-                    )}
-                    <div className="flex-1">
-                      <h3 className="font-display text-lg font-semibold text-charcoal dark:text-cream">{subject.address}</h3>
-                      <p className="text-sm text-walnut dark:text-cream/60 mb-3">{subject.city}, {subject.state} {subject.zip}</p>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {subject.bedrooms > 0 && (
-                          <div className="text-center p-2 rounded-lg bg-walnut/5 dark:bg-gold/5 border border-walnut/10 dark:border-gold/10">
-                            <div className="text-xs text-walnut/60 dark:text-cream/40">Beds</div>
-                            <div className="font-semibold text-charcoal dark:text-cream">{subject.bedrooms}</div>
-                          </div>
-                        )}
-                        {subject.bathrooms > 0 && (
-                          <div className="text-center p-2 rounded-lg bg-walnut/5 dark:bg-gold/5 border border-walnut/10 dark:border-gold/10">
-                            <div className="text-xs text-walnut/60 dark:text-cream/40">Baths</div>
-                            <div className="font-semibold text-charcoal dark:text-cream">{subject.bathrooms}</div>
-                          </div>
-                        )}
-                        {subject.sqft > 0 && (
-                          <div className="text-center p-2 rounded-lg bg-walnut/5 dark:bg-gold/5 border border-walnut/10 dark:border-gold/10">
-                            <div className="text-xs text-walnut/60 dark:text-cream/40">Sq Ft</div>
-                            <div className="font-semibold text-charcoal dark:text-cream">{subject.sqft.toLocaleString()}</div>
-                          </div>
-                        )}
-                        {subject.yearBuilt > 0 && (
-                          <div className="text-center p-2 rounded-lg bg-walnut/5 dark:bg-gold/5 border border-walnut/10 dark:border-gold/10">
-                            <div className="text-xs text-walnut/60 dark:text-cream/40">Year</div>
-                            <div className="font-semibold text-charcoal dark:text-cream">{subject.yearBuilt}</div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Side-by-Side Comparison — shown inline when a comp is selected */}
+            <div ref={subjectRef} />
             {subject && selectedComps.length > 0 && (
               <div ref={comparisonRef}>
                 <PhotoComparison
