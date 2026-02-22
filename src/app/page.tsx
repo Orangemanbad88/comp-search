@@ -96,6 +96,8 @@ function HomeContent() {
       }
       const data = await res.json();
       let comps = data.results;
+      // Filter out bad MLS data (0 sqft entries)
+      comps = comps.filter((r: CompResult) => r.sqft > 0);
       // Apply exact bed/bath filter if specified
       if (criteria.bedVariance === 0 && subjectProperty.bedrooms > 0) {
         comps = comps.filter((r: CompResult) => r.bedrooms === subjectProperty.bedrooms);
