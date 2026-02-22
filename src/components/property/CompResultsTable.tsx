@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { CompResult } from '@/types/property';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
 
@@ -8,6 +8,7 @@ interface CompResultsTableProps {
   results: CompResult[];
   onToggleSelect: (id: string) => void;
   onPropertyClick?: (property: CompResult) => void;
+  scrollToId?: string | null;
 }
 
 type SortKey = 'similarityScore' | 'salePrice' | 'saleDate' | 'distanceMiles' | 'sqft' | 'pricePerSqft';
@@ -43,14 +44,15 @@ function SimilarityBadge({ score }: { score: number }) {
   );
 }
 
-const INITIAL_DISPLAY_COUNT = 5;
-const MOBILE_DISPLAY_COUNT = 5;
+const INITIAL_DISPLAY_COUNT = 25;
+const MOBILE_DISPLAY_COUNT = 25;
 
-export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: CompResultsTableProps) {
+export function CompResultsTable({ results, onToggleSelect, onPropertyClick, scrollToId }: CompResultsTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('similarityScore');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [showAll, setShowAll] = useState(false);
   const [showAllMobile, setShowAllMobile] = useState(false);
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -76,6 +78,20 @@ export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: C
       return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
     }
   });
+
+  // Auto-expand and scroll to a comp when selected from the map
+  useEffect(() => {
+    if (!scrollToId) return;
+    const idx = sortedResults.findIndex(r => r.id === scrollToId);
+    if (idx < 0) return;
+    if (idx >= INITIAL_DISPLAY_COUNT) setShowAll(true);
+    if (idx >= MOBILE_DISPLAY_COUNT) setShowAllMobile(true);
+    requestAnimationFrame(() => {
+      const row = tableRef.current?.querySelector(`[data-comp-id="${scrollToId}"]`);
+      row?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scrollToId]);
 
   const desktopResults = showAll ? sortedResults : sortedResults.slice(0, INITIAL_DISPLAY_COUNT);
   const mobileResults = showAllMobile ? sortedResults : sortedResults.slice(0, MOBILE_DISPLAY_COUNT);
@@ -114,7 +130,7 @@ export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: C
   }
 
   return (
-    <div>
+    <div ref={tableRef}>
       {/* Desktop Table */}
       <div className="hidden md:block overflow-x-auto">
         <table className="min-w-full">
@@ -144,6 +160,7 @@ export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: C
             {desktopResults.map((comp) => (
               <tr
                 key={comp.id}
+                data-comp-id={comp.id}
                 className={cn(
                   'transition-all',
                   comp.selected
@@ -218,6 +235,7 @@ export function CompResultsTable({ results, onToggleSelect, onPropertyClick }: C
         {mobileResults.map((comp) => (
           <div
             key={comp.id}
+            data-comp-id={comp.id}
             className={cn(
               'card-premium rounded-xl p-4 transition-all',
               comp.selected && 'ring-2 ring-burgundy dark:ring-gold'

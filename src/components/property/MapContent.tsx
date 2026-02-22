@@ -13,7 +13,7 @@ interface MapContentProps {
 
 export default function MapContent({ subject, comps, selectedComps, onToggleSelect }: MapContentProps) {
   const [mounted, setMounted] = useState(false);
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(true);
   const [leafletReady, setLeafletReady] = useState(false);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<Map<string, any>>(new Map());
