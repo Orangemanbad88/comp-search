@@ -78,11 +78,11 @@ export default function MyHomesPage() {
                 key={analysis.id}
                 className="card-premium rounded-xl overflow-hidden border border-walnut/10 dark:border-gold/20 hover:shadow-lg transition-shadow"
               >
-                <div className="px-5 py-4 border-b border-walnut/10 dark:border-gold/10 bg-gradient-to-r from-cream to-ivory dark:from-[#111118] dark:to-[#1a1a24]">
-                  <h3 className="font-display text-lg font-semibold text-charcoal dark:text-cream truncate">
+                <div className="wood-grain px-5 py-4 border-b border-walnut-dark/50">
+                  <h3 className="font-display text-lg font-semibold text-cream truncate">
                     {analysis.name}
                   </h3>
-                  <p className="text-xs text-walnut/60 dark:text-cream/40 mt-0.5">
+                  <p className="text-xs text-cream/50 mt-0.5">
                     Saved {new Date(analysis.savedAt).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
