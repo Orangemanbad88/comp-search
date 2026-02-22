@@ -124,8 +124,8 @@ function PhotoPanel({
 
       {/* Details */}
       <div className="p-4 bg-ivory dark:bg-[#1a1a24]">
-        <h4 className="font-semibold text-charcoal dark:text-cream text-sm truncate">{title}</h4>
-        {subtitle && <p className="text-xs text-walnut/60 dark:text-cream/40 mt-0.5">{subtitle}</p>}
+        <h4 className="font-bold text-charcoal dark:text-white text-sm truncate">{title}</h4>
+        {subtitle && <p className="text-xs text-walnut dark:text-cream/70 mt-0.5">{subtitle}</p>}
         <div className="mt-2 space-y-1">
           {detailRows.map((row) => (
             <div key={row.label} className="flex justify-between text-xs">

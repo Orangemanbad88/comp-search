@@ -82,7 +82,7 @@ function HomeContent() {
     handleSearch(updated, defaultCriteria);
   };
 
-  const handleSearch = async (subjectProperty: SubjectProperty, _criteria: SearchCriteria) => {
+  const handleSearch = async (subjectProperty: SubjectProperty, criteria: SearchCriteria) => {
     setIsSearching(true);
     try {
       const res = await fetch('/api/comps/search', {
@@ -95,7 +95,15 @@ function HomeContent() {
         throw new Error(err.error || `Search failed (${res.status})`);
       }
       const data = await res.json();
-      setResults(data.results);
+      let comps = data.results;
+      // Apply exact bed/bath filter if specified
+      if (criteria.bedVariance === 0 && subjectProperty.bedrooms > 0) {
+        comps = comps.filter((r: CompResult) => r.bedrooms === subjectProperty.bedrooms);
+      }
+      if (criteria.bathVariance === 0 && subjectProperty.bathrooms > 0) {
+        comps = comps.filter((r: CompResult) => r.bathrooms === subjectProperty.bathrooms);
+      }
+      setResults(comps);
       setSubject(subjectProperty);
       setHasSearched(true);
       setAdjustments({});
