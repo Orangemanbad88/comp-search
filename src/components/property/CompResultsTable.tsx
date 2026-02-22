@@ -44,8 +44,8 @@ function SimilarityBadge({ score }: { score: number }) {
   );
 }
 
-const INITIAL_DISPLAY_COUNT = 25;
-const MOBILE_DISPLAY_COUNT = 25;
+const INITIAL_DISPLAY_COUNT = 10;
+const MOBILE_DISPLAY_COUNT = 5;
 
 export function CompResultsTable({ results, onToggleSelect, onPropertyClick, scrollToId }: CompResultsTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('similarityScore');
