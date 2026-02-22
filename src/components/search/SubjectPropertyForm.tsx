@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { SubjectProperty, SearchCriteria, PropertyType } from '@/types/property';
+import { SubjectProperty, SearchCriteria, PropertyType, CompResult } from '@/types/property';
 import { Button } from '@/components/ui/Button';
 
 interface SubjectPropertyFormProps {
@@ -9,6 +9,7 @@ interface SubjectPropertyFormProps {
   isSearching?: boolean;
   subject: SubjectProperty;
   onSubjectChange: (subject: SubjectProperty) => void;
+  listings?: CompResult[];
 }
 
 // Cape May County cities — matches MLS lookup values
@@ -31,6 +32,50 @@ const CAPE_MAY_CITIES = [
   'West Cape May',
   'West Wildwood',
 ];
+
+const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
+  'Sea Isle City': { lat: 39.1534, lng: -74.6929 },
+  'Avalon': { lat: 39.1012, lng: -74.7177 },
+  'Stone Harbor': { lat: 39.0526, lng: -74.7608 },
+  'Cape May': { lat: 38.9351, lng: -74.9060 },
+  'Cape May Court House': { lat: 39.0826, lng: -74.8238 },
+  'Cape May Point': { lat: 38.9376, lng: -74.9658 },
+  'Wildwood': { lat: 38.9918, lng: -74.8148 },
+  'Wildwood Crest': { lat: 38.9748, lng: -74.8238 },
+  'North Wildwood': { lat: 39.0026, lng: -74.7988 },
+  'Ocean City': { lat: 39.2776, lng: -74.5746 },
+  'Upper Township': { lat: 39.2048, lng: -74.7238 },
+  'Middle Township': { lat: 39.0426, lng: -74.8438 },
+  'Lower Township': { lat: 38.9626, lng: -74.8838 },
+  'Dennis Township': { lat: 39.1926, lng: -74.8238 },
+  'Woodbine': { lat: 39.2416, lng: -74.8128 },
+  'West Cape May': { lat: 38.9398, lng: -74.9380 },
+  'West Wildwood': { lat: 38.9928, lng: -74.8268 },
+};
+
+function normalizeAddr(s: string): string {
+  return s.toLowerCase().trim()
+    .replace(/\bstreet\b/g, 'st')
+    .replace(/\bavenue\b/g, 'ave')
+    .replace(/\bdrive\b/g, 'dr')
+    .replace(/\broad\b/g, 'rd')
+    .replace(/\bboulevard\b/g, 'blvd')
+    .replace(/\blane\b/g, 'ln')
+    .replace(/\bcourt\b/g, 'ct')
+    .replace(/\bplace\b/g, 'pl')
+    .replace(/[.,#]/g, '')
+    .replace(/\s+/g, ' ');
+}
+
+function findNearestCity(lat: number, lng: number): string {
+  let nearest = 'Sea Isle City';
+  let minDist = Infinity;
+  for (const [city, coords] of Object.entries(CITY_COORDS)) {
+    const d = Math.sqrt((lat - coords.lat) ** 2 + (lng - coords.lng) ** 2);
+    if (d < minDist) { minDist = d; nearest = city; }
+  }
+  return nearest;
+}
 
 export const emptySubject: SubjectProperty = {
   address: '',
@@ -55,14 +100,86 @@ export const defaultCriteria: SearchCriteria = {
   propertyTypeMatch: true,
 };
 
-export function SubjectPropertyForm({ onSearch, isSearching = false, subject, onSubjectChange }: SubjectPropertyFormProps) {
+export function SubjectPropertyForm({ onSearch, isSearching = false, subject, onSubjectChange, listings = [] }: SubjectPropertyFormProps) {
   const setSubject = onSubjectChange;
   const [criteria, setCriteria] = useState<SearchCriteria>(defaultCriteria);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(subject, criteria);
+    let searchSubject = { ...subject };
+
+    // Parse address — might contain "street, city"
+    let searchStreet = subject.address.trim();
+    let searchCity = subject.city;
+    if (searchStreet.includes(',')) {
+      const parts = searchStreet.split(',').map(s => s.trim());
+      searchStreet = parts[0];
+      if (!searchCity && parts[1]) searchCity = parts[1];
+    }
+
+    // Try to find matching listing by address
+    if (searchStreet && listings.length > 0) {
+      const normalized = normalizeAddr(searchStreet);
+      const match = listings.find(l => {
+        const listingAddr = normalizeAddr(l.address);
+        const streetMatch = listingAddr === normalized || listingAddr.includes(normalized) || normalized.includes(listingAddr);
+        if (!searchCity) return streetMatch;
+        return streetMatch && l.city.toLowerCase().includes(searchCity.toLowerCase());
+      });
+
+      if (match) {
+        searchSubject = {
+          address: match.address,
+          city: match.city,
+          state: match.state,
+          zip: match.zip,
+          bedrooms: match.bedrooms,
+          bathrooms: match.bathrooms,
+          sqft: match.sqft,
+          yearBuilt: match.yearBuilt,
+          propertyType: match.propertyType,
+          lat: match.lat,
+          lng: match.lng,
+          photos: match.photos,
+          listingId: match.id,
+        };
+        setSubject(searchSubject);
+        setDetailsOpen(true);
+        onSearch(searchSubject, criteria);
+        return;
+      }
+    }
+
+    // Forward geocode fallback if no listing match found
+    if (subject.address && subject.lat === emptySubject.lat && subject.lng === emptySubject.lng) {
+      try {
+        const query = [subject.address, subject.city || 'Cape May County', subject.state || 'NJ'].filter(Boolean).join(', ');
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&addressdetails=1`,
+          { headers: { 'User-Agent': 'CompAtlas/1.0' } }
+        );
+        const data = await res.json();
+        if (data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lng = parseFloat(data[0].lon);
+          const addr = data[0].address || {};
+          searchSubject = {
+            ...searchSubject,
+            lat,
+            lng,
+            city: subject.city || findNearestCity(lat, lng),
+            zip: subject.zip || addr.postcode || '',
+          };
+          setSubject(searchSubject);
+        }
+      } catch {
+        // proceed with defaults
+      }
+    }
+
+    onSearch(searchSubject, criteria);
   };
 
   const inputClass = "input-premium w-full px-3 py-2.5 rounded-lg text-sm text-charcoal dark:text-cream placeholder-walnut/50 dark:placeholder-cream/30";
@@ -71,128 +188,149 @@ export function SubjectPropertyForm({ onSearch, isSearching = false, subject, on
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Property Details */}
+      {/* Address — always visible */}
+      <div>
+        <label className={labelClass}>Address</label>
+        <input
+          type="text"
+          className={inputClass}
+          value={subject.address}
+          onChange={(e) => setSubject({ ...subject, address: e.target.value })}
+          placeholder="123 Main Street, Sea Isle City"
+        />
+      </div>
+
+      {/* Property Details — collapsible, closed by default */}
       <div className={sectionClass}>
-        <div>
-          <label className={labelClass}>Address</label>
-          <input
-            type="text"
-            className={inputClass}
-            value={subject.address}
-            onChange={(e) => setSubject({ ...subject, address: e.target.value })}
-            placeholder="123 Main Street"
-          />
-        </div>
+        <button
+          type="button"
+          onClick={() => setDetailsOpen(!detailsOpen)}
+          className="w-full text-xs font-semibold text-burgundy dark:text-gold uppercase tracking-wider flex items-center justify-between gap-2 py-1"
+        >
+          <span className="flex items-center gap-2">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            Property Details
+          </span>
+          <svg className={`w-4 h-4 transition-transform ${detailsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className={labelClass}>City</label>
-            <select
-              className={inputClass}
-              value={subject.city}
-              onChange={(e) => setSubject({ ...subject, city: e.target.value })}
-            >
-              <option value="">Select city...</option>
-              {CAPE_MAY_CITIES.map((city) => (
-                <option key={city} value={city}>{city}</option>
-              ))}
-            </select>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className={labelClass}>State</label>
-              <input
-                type="text"
-                className={inputClass}
-                value={subject.state}
-                onChange={(e) => setSubject({ ...subject, state: e.target.value })}
-                placeholder="NJ"
-                maxLength={2}
-              />
+        {detailsOpen && (
+          <div className="space-y-4 pt-2">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelClass}>City</label>
+                <select
+                  className={inputClass}
+                  value={subject.city}
+                  onChange={(e) => setSubject({ ...subject, city: e.target.value })}
+                >
+                  <option value="">Select city...</option>
+                  {CAPE_MAY_CITIES.map((city) => (
+                    <option key={city} value={city}>{city}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className={labelClass}>State</label>
+                  <input
+                    type="text"
+                    className={inputClass}
+                    value={subject.state}
+                    onChange={(e) => setSubject({ ...subject, state: e.target.value })}
+                    placeholder="NJ"
+                    maxLength={2}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>ZIP</label>
+                  <input
+                    type="text"
+                    className={inputClass}
+                    value={subject.zip}
+                    onChange={(e) => setSubject({ ...subject, zip: e.target.value })}
+                    placeholder="08243"
+                    maxLength={5}
+                  />
+                </div>
+              </div>
             </div>
+
             <div>
-              <label className={labelClass}>ZIP</label>
-              <input
-                type="text"
+              <label className={labelClass}>Property Type</label>
+              <select
                 className={inputClass}
-                value={subject.zip}
-                onChange={(e) => setSubject({ ...subject, zip: e.target.value })}
-                placeholder="08243"
-                maxLength={5}
-              />
+                value={subject.propertyType}
+                onChange={(e) => setSubject({ ...subject, propertyType: e.target.value as PropertyType })}
+              >
+                <option value="Single Family">Single Family</option>
+                <option value="Condo">Condo</option>
+                <option value="Townhouse">Townhouse</option>
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelClass}>Beds</label>
+                <input
+                  type="number"
+                  className={inputClass}
+                  value={subject.bedrooms}
+                  onChange={(e) => setSubject({ ...subject, bedrooms: parseInt(e.target.value) || 0 })}
+                  min={0}
+                  max={10}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Baths</label>
+                <input
+                  type="number"
+                  className={inputClass}
+                  value={subject.bathrooms}
+                  onChange={(e) => setSubject({ ...subject, bathrooms: parseFloat(e.target.value) || 0 })}
+                  min={0}
+                  max={10}
+                  step={0.5}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelClass}>Sq Ft</label>
+                <input
+                  type="number"
+                  className={inputClass}
+                  value={subject.sqft}
+                  onChange={(e) => setSubject({ ...subject, sqft: parseInt(e.target.value) || 0 })}
+                  min={0}
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Year Built <span className="text-walnut/40 dark:text-cream/30 normal-case">(opt)</span></label>
+                <input
+                  type="number"
+                  className={inputClass}
+                  value={subject.yearBuilt || ''}
+                  onChange={(e) => setSubject({ ...subject, yearBuilt: parseInt(e.target.value) || 0 })}
+                  placeholder="Any"
+                  min={1800}
+                  max={2030}
+                />
+              </div>
             </div>
           </div>
-        </div>
-
-        <div>
-          <label className={labelClass}>Property Type</label>
-          <select
-            className={inputClass}
-            value={subject.propertyType}
-            onChange={(e) => setSubject({ ...subject, propertyType: e.target.value as PropertyType })}
-          >
-            <option value="Single Family">Single Family</option>
-            <option value="Condo">Condo</option>
-            <option value="Townhouse">Townhouse</option>
-          </select>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className={labelClass}>Beds</label>
-            <input
-              type="number"
-              className={inputClass}
-              value={subject.bedrooms}
-              onChange={(e) => setSubject({ ...subject, bedrooms: parseInt(e.target.value) || 0 })}
-              min={0}
-              max={10}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>Baths</label>
-            <input
-              type="number"
-              className={inputClass}
-              value={subject.bathrooms}
-              onChange={(e) => setSubject({ ...subject, bathrooms: parseFloat(e.target.value) || 0 })}
-              min={0}
-              max={10}
-              step={0.5}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className={labelClass}>Sq Ft</label>
-            <input
-              type="number"
-              className={inputClass}
-              value={subject.sqft}
-              onChange={(e) => setSubject({ ...subject, sqft: parseInt(e.target.value) || 0 })}
-              min={0}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>Year Built <span className="text-walnut/40 dark:text-cream/30 normal-case">(opt)</span></label>
-            <input
-              type="number"
-              className={inputClass}
-              value={subject.yearBuilt || ''}
-              onChange={(e) => setSubject({ ...subject, yearBuilt: parseInt(e.target.value) || 0 })}
-              placeholder="Any"
-              min={1800}
-              max={2030}
-            />
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Brass Divider */}
       <div className="divider-brass"></div>
 
-      {/* Search Filters — collapsible, always visible */}
+      {/* Search Filters — collapsible */}
       <div className={sectionClass}>
         <button
           type="button"
