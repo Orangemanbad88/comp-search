@@ -24,7 +24,7 @@ export const Header = ({ children }: HeaderProps) => {
         <div className="flex items-center justify-between h-16">
           {/* Logo + Nav */}
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gold to-gold-muted flex items-center justify-center shadow-lg">
                 <svg className="w-6 h-6 text-walnut-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
@@ -34,7 +34,7 @@ export const Header = ({ children }: HeaderProps) => {
                 <h1 className="font-display text-xl font-semibold text-cream tracking-wide">CompAtlas</h1>
                 <p className="text-xs text-gold-light/80 hidden sm:block tracking-wider uppercase">Premium Appraisal Intelligence</p>
               </div>
-            </Link>
+            </div>
 
             <nav className="hidden sm:flex items-center gap-1">
               {navLinks.map(link => {
